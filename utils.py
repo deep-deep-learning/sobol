@@ -9,9 +9,9 @@ def compute_sensitivity_indices(inputs, test_model):
     for i in index:
         A = inputs[i]
         mean += np.mean(A, axis=0)
-        j = np.random.randint(0, len(inputs))
+        j = rng.choice(len(inputs)-1, size=400, replace=False)
         while j == i:
-            j = np.random.randint(0, len(inputs))
+            j = rng.choice(len(inputs)-1, size=400, replace=False)
         B = inputs[j]
 
         for d in range(inputs[0].shape[1]):
@@ -45,7 +45,7 @@ def count_zero_params(model):
             zeros += torch.sum((param.data==0).int()).item()
     return zeros
 
-def test_model(model, test_loader, device, masks):
+def test_model(model, test_loader, device, masks=[]):
     # test the model
     with torch.no_grad():
         correct = 0
@@ -64,7 +64,24 @@ def test_model(model, test_loader, device, masks):
 
     return 100 * correct / total
 
-def train_model(model, train_loader, num_iter, device, criterion, optimizer, masks):
+def compute_loss(model, test_loader, device, criterion, masks=[]):
+    with torch.no_grad():
+        loss = 0
+        total = 0
+        for images, labels in test_loader:
+            images = images.reshape(-1, 28 * 28).to(device)
+            for mask in masks:
+                images = torch.index_select(images, 1, torch.from_numpy(mask)).to(device)
+            labels = labels.to(device)
+            outputs = model(images)
+            total += labels.size(0)
+            loss += criterion(outputs, labels)
+
+    loss = loss / total
+    print(loss)
+
+
+def train_model(model, train_loader, num_iter, device, criterion, optimizer, masks=[]):
     # Train the model
     i = 0
     while i < num_iter:

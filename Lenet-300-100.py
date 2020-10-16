@@ -52,15 +52,24 @@ while num_zero_Si_indices != 0:
     # hook to collect inputs
     inputs_fc1 = list()
     def collect_input_fc1(self, input, output):
-        inputs_fc1.append(input[0].cpu().detach().numpy())
+        if device != torch.device('cpu'):
+            inputs_fc1.append(input[0].cpu().detach().numpy())
+        else:
+            inputs_fc1.append(input[0].detach().numpy())
 
     inputs_fc2 = list()
     def collect_input_fc2(self, input, output):
-        inputs_fc2.append(input[0].cpu().detach().numpy())
+        if device != torch.device('cpu'):
+            inputs_fc2.append(input[0].cpu().detach().numpy())
+        else:
+            inputs_fc2.append(input[0].detach().numpy())
 
     inputs_fc3 = list()
     def collect_input_fc3(self, input, output):
-        inputs_fc3.append(input[0].cpu().detach().numpy())
+        if device != torch.device('cpu'):
+            inputs_fc3.append(input[0].cpu().detach().numpy())
+        else:
+            inputs_fc3.append(input[0].detach().numpy())
 
     model.fc1.register_forward_hook(collect_input_fc1)
     model.fc2.register_forward_hook(collect_input_fc2)
