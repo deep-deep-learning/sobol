@@ -9,9 +9,9 @@ def compute_sensitivity_indices(inputs, test_model):
     for i in index:
         A = inputs[i]
         mean += np.mean(A, axis=0)
-        j = rng.choice(len(inputs)-1, size=400, replace=False)
+        j = rng.choice(len(inputs)-1, size=1, replace=False)[0]
         while j == i:
-            j = rng.choice(len(inputs)-1, size=400, replace=False)
+            j = rng.choice(len(inputs)-1, size=1, replace=False)[0]
         B = inputs[j]
 
         for d in range(inputs[0].shape[1]):
@@ -78,7 +78,7 @@ def compute_loss(model, test_loader, device, criterion, masks=[]):
             loss += criterion(outputs, labels)
 
     loss = loss / total
-    print(loss)
+    print(loss.item())
 
 
 def train_model(model, train_loader, num_iter, device, criterion, optimizer, masks=[]):
